@@ -457,6 +457,55 @@ DATABASE_PATH=./devices.db
 API_KEY_SECRET=your-secret-key
 ```
 
+## Future Improvements
+
+### Authentication & Security
+- Add user authentication with JWT tokens
+- Implement API key authentication for devices
+- Add rate limiting to prevent API abuse
+- Enable HTTPS for secure communication
+
+### Enhanced Device Features
+- Device grouping by rooms or zones
+- Bulk operations (update multiple devices at once)
+- Device scheduling and automation rules
+- Support for device firmware updates
+
+### Real-time Updates
+- WebSocket support for live device status updates
+- Push notifications for device state changes
+- Real-time dashboard for monitoring all devices
+
+### Database & Performance
+- Migrate from SQLite to PostgreSQL for better scalability
+- Add Redis caching for frequently accessed data
+- Implement database backup and recovery
+- Add connection pooling for better performance
+
+### API Enhancements
+- Add GraphQL endpoint for flexible queries
+- Implement API versioning
+- Add pagination for device listings
+- Create comprehensive test suite
+
+### Monitoring & Analytics
+- Add logging and monitoring capabilities
+- Device usage analytics and reports
+- Health check endpoints
+- Error tracking and alerting
+
+### Integration Features
+- MQTT support for IoT device communication
+- Webhook support for third-party integrations
+- Export/import device configurations
+- Mobile app development
+
+### User Experience
+- Web-based admin dashboard
+- Device configuration templates
+- Advanced search and filtering
+- Multi-language support
+
 ## Support
 
 - **Documentation**: Visit `/api-docs` when server is running
