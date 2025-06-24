@@ -1,9 +1,18 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swagger');
 const db = require('./db');
 const devicesRouter = require('./routes/devices');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'IoT Device Management API'
+}));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -15,12 +24,29 @@ app.use((req, res, next) => {
 
 app.use('/devices', devicesRouter);
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Get API information
+ *     description: Returns basic information about the API and available endpoints
+ *     tags: [API Info]
+ *     responses:
+ *       200:
+ *         description: API information retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/APIInfo'
+ */
 app.get('/', (req, res) => {
   res.json({
     message: 'IoT Device Management API',
     version: '1.0.0',
+    documentation: 'Visit /api-docs for interactive API documentation',
     endpoints: {
       'GET /': 'API information',
+      'GET /api-docs': 'Interactive API documentation (Swagger UI)',
       'GET /devices': 'List all devices',
       'POST /devices': 'Register new device',
       'GET /devices/:id': 'Get device details',

@@ -4,7 +4,6 @@ const db = require('../db');
 
 const router = express.Router();
 
-// Validation schemas
 const deviceSchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   type: Joi.string().valid('light', 'thermostat', 'camera', 'sensor', 'switch', 'speaker', 'lock', 'other').required(),
@@ -17,6 +16,82 @@ const updateDeviceSchema = Joi.object({
   config: Joi.object().optional()
 }).min(1); 
 
+/**
+ * @swagger
+ * tags:
+ *   name: Devices
+ *   description: IoT device management endpoints
+ */
+
+/**
+ * @swagger
+ * /devices:
+ *   post:
+ *     summary: Register a new IoT device
+ *     description: Creates a new device with the specified name, type, status, and configuration
+ *     tags: [Devices]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/DeviceInput'
+ *           examples:
+ *             light:
+ *               summary: Smart Light
+ *               value:
+ *                 name: "Living Room Light"
+ *                 type: "light"
+ *                 status: "on"
+ *                 config:
+ *                   brightness: 75
+ *                   color: "warm_white"
+ *             thermostat:
+ *               summary: Smart Thermostat
+ *               value:
+ *                 name: "Bedroom Thermostat"
+ *                 type: "thermostat"
+ *                 status: "on"
+ *                 config:
+ *                   temperature: 20
+ *                   mode: "heat"
+ *                   schedule_enabled: true
+ *             camera:
+ *               summary: Security Camera
+ *               value:
+ *                 name: "Front Door Camera"
+ *                 type: "camera"
+ *                 status: "online"
+ *                 config:
+ *                   resolution: "1080p"
+ *                   night_vision: true
+ *                   motion_detection: true
+ *     responses:
+ *       201:
+ *         description: Device registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Device registered successfully"
+ *                 device:
+ *                   $ref: '#/components/schemas/Device'
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/', async (req, res) => {
   try {
     const { error, value } = deviceSchema.validate(req.body);
@@ -50,6 +125,46 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /devices:
+ *   get:
+ *     summary: Get all devices
+ *     description: Retrieves a summary of all registered devices (without full configuration details)
+ *     tags: [Devices]
+ *     responses:
+ *       200:
+ *         description: List of devices retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: "Living Room Light"
+ *                   type:
+ *                     type: string
+ *                     example: "light"
+ *                   status:
+ *                     type: string
+ *                     example: "on"
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2025-06-24T10:30:00.000Z"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/', async (req, res) => {
   try {
     const devices = await db.getAllDevices();
@@ -78,6 +193,41 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /devices/{id}:
+ *   get:
+ *     summary: Get device details
+ *     description: Retrieves full details of a specific device including configuration
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the device to retrieve
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Device details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Device'
+ *       404:
+ *         description: Device not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/:id', async (req, res) => {
   try {
     const deviceId = parseInt(req.params.id);
@@ -113,6 +263,77 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /devices/{id}:
+ *   put:
+ *     summary: Update device
+ *     description: Updates device status and/or configuration
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the device to update
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/DeviceUpdate'
+ *           examples:
+ *             status_update:
+ *               summary: Update Status Only
+ *               value:
+ *                 status: "off"
+ *             config_update:
+ *               summary: Update Config Only
+ *               value:
+ *                 config:
+ *                   brightness: 50
+ *                   color: "cool_white"
+ *             full_update:
+ *               summary: Update Both Status and Config
+ *               value:
+ *                 status: "on"
+ *                 config:
+ *                   brightness: 80
+ *                   color: "daylight"
+ *     responses:
+ *       200:
+ *         description: Device updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Device updated successfully"
+ *                 device:
+ *                   $ref: '#/components/schemas/Device'
+ *       400:
+ *         description: Bad request (validation error or invalid ID)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Device not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/:id', async (req, res) => {
   try {
     const deviceId = parseInt(req.params.id);
@@ -165,6 +386,51 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /devices/{id}:
+ *   delete:
+ *     summary: Delete device
+ *     description: Removes a device from the system permanently
+ *     tags: [Devices]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the device to delete
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Device deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Device deleted successfully"
+ *       400:
+ *         description: Invalid device ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Device not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const deviceId = parseInt(req.params.id);

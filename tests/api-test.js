@@ -50,8 +50,8 @@ async function testAPI() {
         'Content-Type': 'application/json'
       }
     });
-    console.log(`   Status: ${apiInfo.statusCode}`);
-    console.log(`   Response: ${JSON.stringify(apiInfo.body, null, 2)}\n`);
+    console.log(`Status: ${apiInfo.statusCode}`);
+    console.log(`Response: ${JSON.stringify(apiInfo.body, null, 2)}\n`);
 
     console.log('2. Testing GET /devices (List all devices)');
     const allDevices = await makeRequest({
@@ -63,8 +63,8 @@ async function testAPI() {
         'Content-Type': 'application/json'
       }
     });
-    console.log(`   Status: ${allDevices.statusCode}`);
-    console.log(`   Found ${allDevices.body.count} devices\n`);
+    console.log(`Status: ${allDevices.statusCode}`);
+    console.log(`Found ${allDevices.body.count} devices\n`);
 
     console.log('3. Testing GET /devices/1 (Get specific device)');
     const deviceById = await makeRequest({
@@ -76,8 +76,8 @@ async function testAPI() {
         'Content-Type': 'application/json'
       }
     });
-    console.log(`   Status: ${deviceById.statusCode}`);
-    console.log(`   Device: ${deviceById.body.device ? deviceById.body.device.name : 'Not found'}\n`);
+    console.log(`Status: ${deviceById.statusCode}`);
+    console.log(`Device: ${deviceById.body.device ? deviceById.body.device.name : 'Not found'}\n`);
 
     console.log('4. Testing POST /devices (Create new device)');
     const newDeviceData = {
@@ -122,8 +122,8 @@ async function testAPI() {
           'Content-Type': 'application/json'
         }
       }, updateData);
-      console.log(`   Status: ${updateDevice.statusCode}`);
-      console.log(`   Updated device status: ${updateDevice.body.device ? updateDevice.body.device.status : 'Failed'}\n`);
+      console.log(`Status: ${updateDevice.statusCode}`);
+      console.log(`Updated device status: ${updateDevice.body.device ? updateDevice.body.device.status : 'Failed'}\n`);
 
       console.log(`6. Testing DELETE /devices/${deviceId} (Delete device)`);
       const deleteDevice = await makeRequest({
@@ -135,8 +135,8 @@ async function testAPI() {
           'Content-Type': 'application/json'
         }
       });
-      console.log(`   Status: ${deleteDevice.statusCode}`);
-      console.log(`   Deleted: ${deleteDevice.body.message || 'Failed'}\n`);
+      console.log(`Status: ${deleteDevice.statusCode}`);
+      console.log(`Deleted: ${deleteDevice.body.message || 'Failed'}\n`);
     }
 
     console.log('7. Testing error handling (GET /devices/999)');
@@ -149,13 +149,13 @@ async function testAPI() {
         'Content-Type': 'application/json'
       }
     });
-    console.log(`   Status: ${notFound.statusCode}`);
-    console.log(`   Error: ${notFound.body.error || 'No error'}\n`);
+    console.log(`Status: ${notFound.statusCode}`);
+    console.log(`Error: ${notFound.body.error || 'No error'}\n`);
 
-    console.log('✅ All API tests completed successfully!');
+    console.log('All API tests completed successfully!');
 
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    console.error('Test failed:', error.message);
   }
 }
 
