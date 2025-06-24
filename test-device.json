@@ -1,0 +1,9 @@
+{
+  "name": "Smart Door Lock",
+  "type": "lock", 
+  "status": "online",
+  "config": {
+    "locked": true,
+    "auto_lock": 300
+  }
+}

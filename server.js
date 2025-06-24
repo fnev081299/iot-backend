@@ -1,0 +1,78 @@
+const express = require('express');
+const db = require('./db');
+const devicesRouter = require('./routes/devices');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+app.use('/devices', devicesRouter);
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'IoT Device Management API',
+    version: '1.0.0',
+    endpoints: {
+      'GET /': 'API information',
+      'GET /devices': 'List all devices',
+      'POST /devices': 'Register new device',
+      'GET /devices/:id': 'Get device details',
+      'PUT /devices/:id': 'Update device',
+      'DELETE /devices/:id': 'Delete device'
+    }
+  });
+});
+
+app.use('*', (req, res) => {
+  res.status(404).json({
+    error: 'Not Found',
+    message: `Route ${req.method} ${req.originalUrl} not found`
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: 'Something went wrong on the server'
+  });
+});
+
+async function startServer() {
+  try {
+    await db.init();
+    
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 IoT Device Management API is running on http://localhost:${PORT}`);
+      console.log('📚 Available endpoints:');
+      console.log('  GET    /              - API information');
+      console.log('  GET    /devices       - List all devices');
+      console.log('  POST   /devices       - Register new device');
+      console.log('  GET    /devices/:id   - Get device details');
+      console.log('  PUT    /devices/:id   - Update device');
+      console.log('  DELETE /devices/:id   - Delete device');
+    });
+
+    process.on('SIGINT', () => {
+      console.log('\nShutting down server...');
+      server.close(() => {
+        console.log('Server closed');
+        db.close();
+        process.exit(0);
+      });
+    });
+
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
